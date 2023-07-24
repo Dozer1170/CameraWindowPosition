@@ -3,14 +3,38 @@
 
 #include <vector>
 #include <iostream>
-#include <string>
 #include <windows.h>
+#include <process.h>
+#include <Tlhelp32.h>
+#include <winbase.h>
+#include <string.h>
 #include <WinUser.h>
 
 HWND cameraWinOne;
 HWND cameraWinTwo;
-HWND cmdOne;
-HWND cmdTwo;
+
+void killProcessByName(const WCHAR* filename)
+{
+    HANDLE hSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, NULL);
+    PROCESSENTRY32 pEntry;
+    pEntry.dwSize = sizeof(pEntry);
+    BOOL hRes = Process32First(hSnapShot, &pEntry);
+    while (hRes)
+    {
+        if (wcscmp(pEntry.szExeFile, filename) == 0)
+        {
+            HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, 0,
+                (DWORD)pEntry.th32ProcessID);
+            if (hProcess != NULL)
+            {
+                TerminateProcess(hProcess, 9);
+                CloseHandle(hProcess);
+            }
+        }
+        hRes = Process32Next(hSnapShot, &pEntry);
+    }
+    CloseHandle(hSnapShot);
+}
 
 BOOL CALLBACK handleWindow(HWND hwnd, LPARAM lParam) {
     const DWORD TITLE_SIZE = 1024;
@@ -31,14 +55,6 @@ BOOL CALLBACK handleWindow(HWND hwnd, LPARAM lParam) {
             cameraWinTwo = hwnd;
         }
 
-    }
-
-    if (title.find(L"Harrison") != std::string::npos) {
-        cmdOne = hwnd;
-    }
-    
-    if (title.find(L"Parker") != std::string::npos) {
-        cmdTwo = hwnd;
     }
 
     return TRUE;
@@ -96,13 +112,7 @@ int main()
     if (cameraWinTwo) {
         CloseWindow(cameraWinTwo);
     }
-    
-    if (cmdOne) {
-        CloseWindow(cmdOne);
-    }
-    
-    if (cmdTwo) {
-        CloseWindow(cmdTwo);
-    }
+
+    killProcessByName(L"ffplay.exe");
 }
 
