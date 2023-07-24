@@ -9,6 +9,8 @@
 
 HWND cameraWinOne;
 HWND cameraWinTwo;
+HWND cmdOne;
+HWND cmdTwo;
 
 BOOL CALLBACK handleWindow(HWND hwnd, LPARAM lParam) {
     const DWORD TITLE_SIZE = 1024;
@@ -29,6 +31,14 @@ BOOL CALLBACK handleWindow(HWND hwnd, LPARAM lParam) {
             cameraWinTwo = hwnd;
         }
 
+    }
+
+    if (title.find(L"Harrison") != std::string::npos) {
+        cmdOne = hwnd;
+    }
+    
+    if (title.find(L"Parker") != std::string::npos) {
+        cmdTwo = hwnd;
     }
 
     return TRUE;
@@ -62,28 +72,37 @@ int main()
     std::cout << "Window size width(" << halfDesktopWidth << ") height(" << halfDesktopHeight << ")\n";
 
     if (cameraWinOne) {
-        std::cout << "Moving window one to left top";
+        std::cout << "Moving window one to left top\n";
         SetWindowLong(cameraWinOne, GWL_STYLE, WS_BORDER);
         SetWindowPos(cameraWinOne, NULL, monitorInfo.rcMonitor.left, monitorInfo.rcMonitor.top,
             halfDesktopWidth, halfDesktopHeight, SWP_SHOWWINDOW);
     }
 
     if (cameraWinTwo) {
-		std::cout << "Moving window two to left bottom";
+		std::cout << "Moving window two to left bottom\n";
         SetWindowLong(cameraWinTwo, GWL_STYLE, WS_BORDER);
 	    SetWindowPos(cameraWinTwo, NULL,  monitorInfo.rcMonitor.left,
             monitorInfo.rcMonitor.top + halfDesktopHeight, halfDesktopWidth,
             halfDesktopHeight, SWP_SHOWWINDOW);
     }
+
+    std::cout << "Press enter key to close windows";
+	std::cin.get();
+
+    if (cameraWinOne) {
+        CloseWindow(cameraWinOne);
+    }
+    
+    if (cameraWinTwo) {
+        CloseWindow(cameraWinTwo);
+    }
+    
+    if (cmdOne) {
+        CloseWindow(cmdOne);
+    }
+    
+    if (cmdTwo) {
+        CloseWindow(cmdTwo);
+    }
 }
 
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
